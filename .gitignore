@@ -1,0 +1,57 @@
+# Environment variables (NEVER commit)
+.env
+/data
+/tables
+/results
+
+/FINAL_RESULTS
+/logs
+/models
+/results
+/scripts
+/src
+/tests
+/docs
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+env/
+*.egg-info/
+.eggs/
+dist/
+build/
+.md 
+# Data files (too large for git)
+data/
+*.csv
+*.parquet
+*.h5
+*.json
+
+# Model files
+*.pkl
+results/models/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+error_log.txt
+data_quality_report.txt
