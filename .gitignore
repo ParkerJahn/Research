@@ -1,57 +1,84 @@
-# Environment variables (NEVER commit)
+# Environment variables and secrets
 .env
-/data
-/tables
-/results
+*.env
+*_api_key.txt
+config.py
 
-/FINAL_RESULTS
-/logs
-/models
-/results
-/scripts
-/src
-/tests
-/docs
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-venv/
-env/
-*.egg-info/
-.eggs/
-dist/
-build/
-.md 
-# Data files (too large for git)
+# Data files (users will generate these)
 data/
 *.csv
+*.xlsx
 *.parquet
 *.h5
 *.json
 
+# Generated outputs (users will generate these)
+outputs/
+results/
+figures/
+FINAL_RESULTS/
+*.png
+*.jpg
+*.jpeg
+*.pdf
+
 # Model files
+models/
 *.pkl
-results/models/
+*.joblib
+*.h5
+*.pth
+*.pt
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+venv/
+env/
+ENV/
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-.DS_Store
-Thumbs.db
-
-# Jupyter
-.ipynb_checkpoints/
+*.sublime-project
+*.sublime-workspace
 
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
 
-# Logs
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Logs and reports
 *.log
-error_log.txt
-data_quality_report.txt
+logs/
+*.txt
+
+# LaTeX auxiliary files
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+*.out
+*.toc
+
+# Backup and temporary files
+*~
+*.bak
+*.backup
+OLD_OUTPUTS*/
+*_BACKUP_*/

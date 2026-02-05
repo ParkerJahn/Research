@@ -1,153 +1,234 @@
-# Sentiment-Driven Volatility Prediction
+# Sentiment-Augmented Implied Volatility Forecasting
 
-## Project Overview
-Research project investigating whether sentiment shocks from financial news about semiconductor companies, combined with commodity market volatility, can predict short-term movements in semiconductor equity volatility.
+A methodologically rigorous implementation of sentiment-augmented VIX forecasting using news sentiment, PCA dimensionality reduction, and HAR-IV models with rolling cross-validation.
 
-**Timeline**: 3-Day Research Sprint  
-**Status**: Active Development  
-**Date**: January 31, 2026
+## Citation
+
+If you use this code in your research, please cite:
+
+```bibtex
+@techreport{jahn2026sentiment,
+  title={Sentiment-Augmented Implied Volatility Forecasting: A Methodologically Rigorous PCA-HAR Approach},
+  author={Jahn, Parker},
+  year={2026},
+  institution={Rollins College},
+  type={Working Paper}
+}
+```
 
 ## Quick Start
 
-### 1. Environment Setup
+### 1. Clone and Install
+
 ```bash
-# Create conda environment
-conda create -n volatility-research python=3.10 -y
-conda activate volatility-research
+git clone https://github.com/yourusername/sentiment-vix-forecasting.git
+cd sentiment-vix-forecasting
+
+# Create virtual environment
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
 ```
 
-### 2. Configuration
+### 2. Configure API Access
+
 ```bash
 # Copy environment template
 cp .env.example .env
 
-# Edit .env and add your API keys:
-# - NewsAPI: https://newsapi.org/
-# - Alpha Vantage: https://www.alphavantage.co/
+# Edit .env and add your Alpha Vantage API key
+# Get free key at: https://www.alphavantage.co/support/#api-key
 ```
 
-### 3. Run Setup
+### 3. Set Up Configuration
+
 ```bash
-# Create directory structure and validate config
-python setup_project.py
+# Copy configuration template
+cp config_template.py config.py
+
+# (Optional) Edit config.py to adjust parameters
 ```
 
-### 4. Start Data Collection
+### 4. Run the Analysis
+
 ```bash
-# Run Day 1: Data collection
-python scripts/01_collect_data.py
+# Step 1: Collect data (WARNING: Takes ~4 days due to API rate limits)
+python scripts/01_collect.py
+
+# Step 2: Process features and sentiment
+python scripts/02_process.py
+
+# Step 3: Run PCA and forecasting models
+python scripts/03_pca_varx.py
+
+# Step 4: Generate publication-quality figures
+python scripts/09_publication_figures.py
 ```
 
-## Project Structure
+## Repository Structure
+
 ```
-.
-├── config.py                 # Configuration and parameters
-├── setup_project.py          # Automated setup script
-├── requirements.txt          # Python dependencies
-├── data/                     # Data storage (not in git)
-│   ├── raw/                  # Original downloaded data
-│   │   ├── news/             # News headlines
-│   │   ├── prices/           # Equity prices
-│   │   └── commodities/      # Commodity futures
-│   └── processed/            # Cleaned, aligned data
-├── src/                      # Reusable Python modules
-│   ├── data_collection.py    # API wrappers
-│   ├── sentiment_analysis.py # FinBERT processing
-│   ├── feature_engineering.py # Volatility calculations
-│   ├── dimensionality_reduction.py # PCA
-│   ├── models.py             # VAR, Granger tests
-│   ├── forecasting.py        # Out-of-sample prediction
-│   ├── backtesting.py        # Strategy simulation
-│   ├── visualization.py      # Plotting functions
-│   └── utils.py              # Helper functions
-├── scripts/                  # Executable analysis scripts
-│   ├── 01_collect_data.py    # Day 1: Data collection
-│   ├── 02_process_features.py # Day 1: Feature engineering
-│   ├── 03_run_pca.py         # Day 2: PCA analysis
-│   ├── 04_estimate_var.py    # Day 2: VAR modeling
-│   ├── 05_forecast.py        # Day 2: Forecasting
-│   ├── 06_backtest.py        # Day 3: Backtesting
-│   └── 07_create_plots.py    # Day 3: Visualization
-├── results/                  # Output artifacts (not in git)
-│   ├── figures/              # Plots and visualizations
-│   │   ├── eda/              # Exploratory analysis
-│   │   ├── pca/              # PCA visualizations
-│   │   ├── var/              # VAR model results
-│   │   └── backtest/         # Backtest performance
-│   ├── tables/               # CSV result tables
-│   └── models/               # Saved model objects
-└── docs/                     # Documentation
-    ├── FINDINGS.md           # Running notes
-    └── research_paper.pdf    # Final deliverable
+sentiment-vix-forecasting/
+│
+├── README.md                          # This file
+├── METHODOLOGY.md                     # Detailed technical documentation
+├── LICENSE                            # MIT License
+├── requirements.txt                   # Python dependencies
+├── .gitignore                         # Files to exclude from git
+├── .env.example                       # Environment variables template
+├── config_template.py                 # Configuration template
+│
+├── src/                               # Source code modules
+│   ├── data_collection.py            # Yahoo Finance + AlphaVantage APIs
+│   ├── sentiment_analysis.py         # FinBERT sentiment processing
+│   ├── sentiment_processing.py       # Sentiment orthogonalization
+│   ├── feature_engineering.py        # Returns, volatility calculations
+│   ├── pca_expanding.py              # Rolling PCA implementation
+│   ├── models.py                     # HAR-IV model implementations
+│   ├── unified_metrics.py            # Evaluation metrics
+│   ├── benchmarks.py                 # Baseline model comparisons
+│   └── utils.py                      # Helper functions
+│
+└── scripts/                           # Executable analysis scripts
+    ├── 01_collect.py                 # Data collection pipeline
+    ├── 02_process.py                 # Feature engineering
+    ├── 03_pca_varx.py                # PCA + forecasting
+    ├── 09_publication_figures.py     # Generate all figures
+    └── create_pipeline_schematic.py  # Methodology flowchart
+```
 
-## Methodology
+## Data Requirements
 
-### Phase 1: Data Collection (Day 1)
-- **News Sentiment**: FinBERT analysis of semiconductor company headlines
-- **Equity Data**: SMH, SOXX ETF prices and volatility
-- **Commodity Data**: WTI Crude, Natural Gas, Copper futures
-- **Time Period**: 2023-2024 (2 years, ~500 trading days)
+This project requires the following data sources:
 
-### Phase 2: Feature Engineering (Day 1)
-- **Volatility Metrics**: 21-day rolling realized volatility
-- **Sentiment Scores**: Daily aggregated sentiment per ticker
-- **Lagged Features**: 1-day and 5-day sentiment lags
+### Market Data (Free - Yahoo Finance)
+- **VIX**: CBOE Volatility Index (^VIX)
+- **ETFs**: SMH (semiconductors), SOXX (semiconductors)
+- **Commodities**: Gold (GC=F), Oil (CL=F), Copper (HG=F)
+- **Date Range**: 2022-01-01 to present
 
-### Phase 3: Statistical Modeling (Day 2)
-- **PCA**: Dimensionality reduction on sentiment-commodity factors
-- **VAR Model**: Vector autoregression with lag selection
-- **Granger Causality**: Test if sentiment/commodities predict volatility
-- **IRF Analysis**: Impulse response functions
+### Sentiment Data (Free - Alpha Vantage API)
+- **News Headlines**: Semiconductor companies (NVDA, AMD, INTC, TSM, MU)
+- **API Key Required**: Free tier allows 5 requests/minute
+- **Collection Time**: ~4 days for full dataset (due to rate limits)
+- **Processing**: FinBERT sentiment analysis
 
-### Phase 4: Forecasting (Day 2)
-- **Horizons**: 1-day, 5-day, 10-day ahead predictions
-- **Validation**: Rolling-window out-of-sample forecasts
-- **Baselines**: Random walk, historical average, AR(1)
+## Expected Runtime
 
-### Phase 5: Backtesting (Day 3)
-- **Strategy**: Long/short volatility based on forecasts
-- **Transaction Costs**: 10 bps per trade
-- **Metrics**: Sharpe ratio, max drawdown, win rate
+| Step | Description | Time |
+|------|-------------|------|
+| Data Collection | Yahoo Finance + Alpha Vantage | ~4 days* |
+| Feature Engineering | Returns, volatility, sentiment | ~5 minutes |
+| PCA + Forecasting | Rolling CV across 3 horizons | ~15 minutes |
+| Figure Generation | All publication figures | ~2 minutes |
 
-## Key Technologies
-- **Language**: Python 3.10
-- **NLP**: FinBERT (transformers, PyTorch)
-- **Econometrics**: statsmodels (VAR, Granger tests)
-- **ML**: scikit-learn (PCA, preprocessing)
-- **Data Collection**: yfinance, NewsAPI
-- **Visualization**: matplotlib, seaborn
+*Alpha Vantage free tier: 5 requests/minute. Can be reduced to ~2 hours with premium API.
 
-## Research Questions
-1. **H1**: Do sentiment shocks Granger-cause changes in semiconductor volatility?
-2. **H2**: Does commodity volatility provide incremental predictive power?
-3. **H3**: Can sentiment-commodity factors enable profitable volatility trading?
+## Results Replication
 
-## Success Metrics
-- ✅ At least 1 Granger causality result with p < 0.05
-- ✅ Out-of-sample RMSE beats random walk by ≥10%
-- ✅ Backtest Sharpe ratio > 0.5 (if edge exists)
-- ✅ Complete reproducible codebase
-- ✅ 15-25 page research paper
+To verify your results match the paper:
 
-## Timeline
-| Day | Focus | Deliverables |
-|-----|-------|--------------|
-| **Day 1** | Data Foundation | Raw data, sentiment scores, master_features.csv |
-| **Day 2** | Statistical Analysis | PCA loadings, VAR model, Granger tests, forecasts |
-| **Day 3** | Application | Backtest results, all figures, research paper |
+### Expected Key Findings
 
-## Documentation
-- **PRD.md**: Complete product requirements document
-- **Setup.md**: Detailed technology stack setup guide
-- **FINDINGS.md**: Running notes and observations
-- **research_paper.pdf**: Final research deliverable
+**1-Day Horizon:**
+- HAR-IV RMSE: ~2.28
+- Augmented RMSE: ~1.89
+- Improvement: ~17%
+- Diebold-Mariano p-value: <0.001 (highly significant)
+
+**5-Day Horizon:**
+- HAR-IV RMSE: ~4.26
+- Augmented RMSE: ~4.28
+- Improvement: ~0% (not significant)
+
+**22-Day Horizon:**
+- HAR-IV RMSE: ~5.74
+- Augmented RMSE: ~5.83
+- Improvement: -1.5% (not significant)
+
+### Verification Steps
+
+```bash
+# Run full pipeline
+python scripts/03_pca_varx.py
+
+# Check output in terminal for RMSE values
+# Compare with expected values above (±0.05 tolerance)
+```
+
+## Troubleshooting
+
+### API Rate Limit Errors
+**Problem**: `429 Too Many Requests` from Alpha Vantage  
+**Solution**: The script automatically handles rate limiting with 12-second delays. If you see this error, the free tier limit (5/min) may have changed. Increase delay in `config.py`.
+
+### Missing Data
+**Problem**: Gaps in sentiment data  
+**Solution**: Run `scripts/08_fill_sentiment_gap.py` to interpolate missing values.
+
+### FinBERT Model Download
+**Problem**: First run downloads ~500MB FinBERT model  
+**Solution**: Ensure stable internet connection. Model caches to `~/.cache/huggingface/`.
+
+### Memory Issues
+**Problem**: Out of memory during PCA  
+**Solution**: Reduce `CV_TEST_SIZE` in `config.py` from 50 to 25.
+
+## Methodology Overview
+
+This project implements a sentiment-augmented HAR-IV (Heterogeneous Autoregressive - Implied Volatility) model:
+
+1. **Data Collection**: Market data (VIX, ETFs, commodities) + news sentiment
+2. **Sentiment Processing**: FinBERT → Orthogonalization (purge return information)
+3. **Dimensionality Reduction**: Rolling PCA on 9 features → 3 principal components
+4. **Forecasting**: HAR-IV baseline vs. HAR-IV + PCA + Sentiment
+5. **Validation**: Rolling cross-validation (200-day train, 50-day test, 25-day step)
+6. **Evaluation**: RMSE, MAE, Diebold-Mariano tests
+
+For detailed methodology, see [METHODOLOGY.md](METHODOLOGY.md).
+
+## Key Features
+
+✅ **Methodologically Rigorous**: No look-ahead bias, proper cross-validation  
+✅ **Reproducible**: Fixed random seeds, documented parameters  
+✅ **Well-Documented**: Comprehensive docstrings, inline comments  
+✅ **Publication-Ready**: Generates LaTeX-compatible figures  
+✅ **Extensible**: Modular design for easy adaptation
+
+## Adapting This Code
+
+### Change Target Variable
+Edit `config.py`:
+```python
+IMPLIED_VOL_TICKERS = ['^VXN']  # NASDAQ volatility instead of VIX
+```
+
+### Change Sentiment Source
+Edit `config.py`:
+```python
+SEMICONDUCTOR_TICKERS = ['AAPL', 'MSFT', 'GOOGL']  # Tech giants
+```
+
+### Change Forecast Horizons
+Edit `config.py`:
+```python
+FORECAST_HORIZONS = [1, 10, 30]  # 1-day, 2-week, 1-month
+```
 
 ## License
-MIT License
+
+MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Contact
-Parker Jahn  
-Winter Park, Florida, US
+
+**Parker Jahn**  
+Email: jahnparker90@gmail.com  
+Institution: Rollins College
+
+## Acknowledgments
+
+- FinBERT model: [ProsusAI/finbert](https://huggingface.co/ProsusAI/finbert)
+- Data sources: Yahoo Finance, Alpha Vantage
+- Methodology inspired by HAR-RV literature (Corsi, 2009)
